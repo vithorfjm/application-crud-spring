@@ -3,8 +3,10 @@ package com.example.crud.controllers;
 import com.example.crud.domain.product.Product;
 import com.example.crud.domain.product.ProductRepository;
 import com.example.crud.domain.product.RequestProduct;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import org.hibernate.action.internal.EntityActionVetoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +41,9 @@ public class ProductController {
             product.setName(data.name());
             product.setPrice_in_cents((data.price_in_cents()));
             return ResponseEntity.ok(product);
+        } else {
+            throw new EntityNotFoundException();
         }
-        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
@@ -51,7 +54,8 @@ public class ProductController {
             Product product = optionalProduct.get();
             product.setActive(false);
             return ResponseEntity.noContent().build();
+        } else {
+            throw new EntityNotFoundException();
         }
-        return ResponseEntity.notFound().build();
     }
 }
