@@ -1,5 +1,7 @@
 package com.example.crud.services;
 
+import com.example.crud.domain.category.Category;
+import com.example.crud.domain.category.CategoryRepository;
 import com.example.crud.domain.product.Product;
 import com.example.crud.domain.product.ProductRepository;
 import com.example.crud.domain.product.RequestProduct;
@@ -15,19 +17,19 @@ import java.util.Optional;
 
 @Service
 public class ProductService {
-    private final ProductRepository repository;
+    @Autowired
+    private ProductRepository repository;
 
     @Autowired
-    public ProductService(ProductRepository repository) {
-        this.repository = repository;
-    }
+    private CategoryRepository categoryRepository;
 
     public List<Product> getAllProducts() {
         return repository.findAllByActiveTrue();
     }
 
     public void registerProduct(RequestProduct data) {
-        Product newProduct = new Product(data);
+        Optional<Category> optionalCategory = categoryRepository.findById(data.category_id());
+        Product newProduct = new Product(data, optionalCategory.get());
         repository.save(newProduct);
     }
 
@@ -44,7 +46,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void deleteProduct(String id) {
+    public void deleteProduct(int id) {
         Optional<Product> optionalProduct = repository.findById(id);
         if (optionalProduct.isPresent()) {
             Product product = optionalProduct.get();
